@@ -44,7 +44,7 @@
         {% if page.has_previous %}
             <a class="button button-primary" href="?page={{ page.previous_page_number }}">⟵</a>
         {% endif %}
-        <a class="button disabled" href="">{{ page.number }}</a>
+        <a class="button disabled" href="">{{ page.number }} из {{ page.paginator.num_pages }}</a>
         {% if page.has_next %}
             <a class="button button-primary" href="?page={{ page.next_page_number }}">⟶</a>
         {% endif %}
