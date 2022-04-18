@@ -8,16 +8,32 @@
             <h1><a href="/books">Каталог</a></h1>
         </div>
         <div class="row">
+            {% for book in books %}
             <div class="book col-md-4">
-                <h2>Сияние</h2>
-                <p>Автор: Стивен Кинг</p>
-                <p>Дата публикации: 2018-09-10</p>
+                <h2>{{ book.name }}</h2>
+                <p>Автор: {{ book.author }}</p>
+                <p>Дата публикации: <a href="books/{{ book.pub_date|date:"Y-m-d" }}">{{ book.pub_date|date:"Y-m-d" }}</a></p>
             </div>
-            <div class="book col-md-4">
-                <h2>1984</h2>
-                <p>Автор: Джордж Оруэл</p>
-                <p>Дата публикации: 2015-03-11</p>
-            </div>
+            {% endfor %}
         </div>
+        <table border="0" cellspacing="10px">
+            <tr>
+                <td width="120px">
+                    {% if page.has_previous %}
+                    <a href="/books/{{ prev.0.pub_date|date:"Y-m-d" }}/">⟵{{ prev.0.pub_date|date:"Y-m-d" }}</a>
+                    {% endif %}
+                </td>
+                {% if page.has_previous or page.has_next %}
+                <td width="80px">
+                    <a href="/">&gt;index&lt;</a>
+                </td>
+                {% endif %}
+                <td width="120px">
+                    {% if page.has_next %}
+                    <a href="/books/{{ next.0.pub_date|date:"Y-m-d" }}/">{{ next.0.pub_date|date:"Y-m-d" }}⟶</a>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
     </div>
 {% endblock %}
