@@ -8,6 +8,7 @@ class Article(models.Model):
     published_at = models.DateTimeField(verbose_name='Дата публикации')
     image = models.ImageField(null=True, blank=True,
                               verbose_name='Изображение')
+    tags = models.ManyToManyField('Tag', through='ArticleScope')
 
     class Meta:
         verbose_name = 'Статья'
@@ -32,7 +33,7 @@ class ArticleScope(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE,
                                 verbose_name='Статья', related_name='scopes')
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE,
-                            verbose_name='РАЗДЕЛ')
+                            verbose_name='РАЗДЕЛ', related_name='scopes')
     is_main = models.BooleanField('Основной')
 
     class Meta:
