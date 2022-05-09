@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from advertisements.models import Advertisement, AdvertisementStatusChoices
+from advertisements.models import Advertisement, AdvertisementStatusChoices, \
+    Favourite
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,11 +21,21 @@ class AdvertisementSerializer(serializers.ModelSerializer):
     creator = UserSerializer(
         read_only=True,
     )
+    add_to_favourites = serializers.SerializerMethodField()
+    view_favourites = serializers.SerializerMethodField()
 
     class Meta:
         model = Advertisement
-        fields = ('id', 'title', 'description', 'creator',
-                  'status', 'created_at',)
+        fields = ('id', 'add_to_favourites', 'view_favourites', 'title',
+                  'description', 'creator', 'status', 'created_at',)
+
+    def get_add_to_favourites(self, obj):
+        if obj.creator != self.context["request"].user:
+            return f'POST /advertisements/{obj.id}/fav/'
+        return 'недоступно для автора объявления'
+
+    def get_view_favourites(self, obj):
+        return 'GET /favs/'
 
     def create(self, validated_data):
         """Метод для создания"""
@@ -40,3 +51,22 @@ class AdvertisementSerializer(serializers.ModelSerializer):
                 .count() == 10:
             raise ValidationError('Ограничение 10 открытых объявлений')
         return data
+
+
+class FavAdvListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Advertisement
+        fields = ('id', 'title', 'description', 'creator', 'status',
+                  'created_at',)
+
+
+class FavAdvertisementSerializer(serializers.ModelSerializer):
+    ad = FavAdvListSerializer(read_only=True)
+    delete_from_favourites = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Favourite
+        fields = ['id', 'delete_from_favourites', 'ad']
+
+    def get_delete_from_favourites(self, obj):
+        return f'DELETE /favs/{obj.id}/'
