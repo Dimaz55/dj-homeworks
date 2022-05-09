@@ -15,6 +15,9 @@ class Stock(models.Model):
         related_name='stocks',
     )
 
+    class Meta:
+        ordering = ['id']
+
 
 class StockProduct(models.Model):
     stock = models.ForeignKey(
@@ -33,3 +36,6 @@ class StockProduct(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)],
     )
+
+    class Meta:
+        ordering = ['id']
