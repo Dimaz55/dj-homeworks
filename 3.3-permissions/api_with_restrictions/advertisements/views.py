@@ -1,15 +1,15 @@
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, \
-    IsAuthenticatedOrReadOnly, IsAdminUser
+
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from advertisements.filters import AdvertisementFilter
 from advertisements.models import Advertisement, Favourite, \
     AdvertisementStatusChoices
-from advertisements.permissions import IsCreator, IsDraftCreator
+from advertisements.permissions import IsDraftCreator, \
+    IsCreatorOrAdminUser
 from advertisements.serializers import AdvertisementSerializer, \
     FavAdvertisementSerializer
 
@@ -28,10 +28,10 @@ class AdvertisementViewSet(ModelViewSet):
 
     def get_permissions(self):
         """Получение прав для действий."""
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAuthenticated(), IsCreator(), IsAdminUser()]
+        if self.action in ["create", "update", "partial_update"]:
+            return [IsCreatorOrAdminUser()]
         else:
-            return [IsAuthenticatedOrReadOnly()]
+            return [IsDraftCreator()]
 
     @action(methods=['POST'], detail=True)
     def fav(self, request, pk):
@@ -48,7 +48,7 @@ class FavAdvertisementViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
     queryset = Favourite.objects.all()
     serializer_class = FavAdvertisementSerializer
-    permission_classes = [IsCreator]
+    permission_classes = [IsCreatorOrAdminUser]
 
     def get_queryset(self):
         queryset = super().get_queryset()
