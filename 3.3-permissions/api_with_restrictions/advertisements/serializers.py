@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -45,11 +47,15 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""
-        if Advertisement.objects \
+        action = self.context['request']._request.method
+        open_adv_count = Advertisement.objects \
                 .filter(creator=self.context["request"].user) \
                 .filter(status=AdvertisementStatusChoices.OPEN) \
-                .count() == 10:
-            raise ValidationError('Ограничение 10 открытых объявлений')
+                .count()
+        if open_adv_count == 10:
+            if action == 'POST' or \
+               action == 'PATCH' and data['status'] == 'OPEN':
+                raise ValidationError('Ограничение 10 открытых объявлений')
         return data
 
 
